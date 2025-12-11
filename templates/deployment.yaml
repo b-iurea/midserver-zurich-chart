@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "myapp.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "myapp.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "myapp.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: myapp
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          
+          env:
+            - name: MID_INSTANCE_URL
+              value: {{ required "MID_INSTANCE_URL is required!" .Values.env.MID_INSTANCE_URL | quote }}
+
+            - name: MID_INSTANCE_USERNAME
+              value: {{ required "MID_INSTANCE_USERNAME is required!" .Values.env.MID_INSTANCE_USERNAME | quote }}
+
+            - name: MID_INSTANCE_PASSWORD
+              value: {{ required "MID_INSTANCE_PASSWORD is required!" .Values.env.MID_INSTANCE_PASSWORD | quote }}
+
+            - name: MID_SERVER_NAME
+              value: {{ required "MID_SERVER_NAME is required!" .Values.env.MID_SERVER_NAME | quote }}
+
+            - name: MID_PROXY_HOST
+              value: {{ .Values.env.MID_PROXY_HOST | default "" | quote }}
+
+            - name: MID_PROXY_PORT
+              value: {{ .Values.env.MID_PROXY_PORT | default "" | quote }}
+
+            - name: MID_PROXY_USERNAME
+              value: {{ .Values.env.MID_PROXY_USERNAME | default "" | quote }}
+
+            - name: MID_PROXY_PASSWORD
+              value: {{ .Values.env.MID_PROXY_PASSWORD | default "" | quote }}
+
+            - name: MID_MUTUAL_AUTH_PEM_FILE
+              value: {{ .Values.env.MID_MUTUAL_AUTH_PEM_FILE | default "" | quote }}
+
+            - name: MID_SSL_BOOTSTRAP_CERT_REVOCATION_CHECK
+              value: {{ .Values.env.MID_SSL_BOOTSTRAP_CERT_REVOCATION_CHECK | default "" | quote }}
+
+            - name: MID_SSL_USE_INSTANCE_SECURITY_POLICY
+              value: {{ .Values.env.MID_SSL_USE_INSTANCE_SECURITY_POLICY | default "" | quote }}
+
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+      imagePullSecrets:
+        {{- if .Values.imagePullSecrets }}
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+        {{- end }}

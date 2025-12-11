@@ -1,0 +1,11 @@
+apiVersion: v2
+name: midserver-zurich
+description: Helm for ServiceNow MidServer 
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+maintainers:
+  - name: Bogdan Iurea
+    email: b.iurea94@gmail.com
+    url: https://github.com/b-iurea
